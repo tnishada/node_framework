@@ -3,15 +3,20 @@
  */
 var assert = require("assert");
 var http = require('http');
-var server = require('./../tns.js');
+var app = require('./../nodeFramework.js')();
 
-describe('/', function () {
-    it('should return 200', function (done) {
+before(function(){
+    app.get("/",function(){
+    });
+    app.listen(3000 , function(){
+    });
+});
+
+describe('server status', function () {
+    it('server is running', function () {
         http.get('http://localhost:3000', function (res) {
             assert.equal(200, res.statusCode);
-            done();
         });
     });
-
-})
+});
 

@@ -2,11 +2,11 @@
  * Created by tharindu on 1/21/2015.
  */
 
-var app = require('./tns.js').app;
+var nodeFramework = require('./nodeFramework.js');
+var app = nodeFramework();
 
 app.get('/', function(req , res){
     res.send("hello this is from test app");
-   // console.log("got the request to the main url");
 });
 
 app.get('/home',function(req , res){

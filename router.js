@@ -12,7 +12,6 @@ var router = {
             console.log('favicon requested');
             return;
         }
-
         try{
             responseObj.response = res;
             this.routesArray[req.url](req , responseObj);
