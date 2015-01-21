@@ -1,9 +1,9 @@
 /**
  * Created by tharindu on 1/21/2015.
  */
-var router = {
-    routesArray : {},
-    route : function(req , res){
+var router = function(){};
+    router.prototype.routesArray  = {'GET':{},'POST':{},'DELETE':{},'PUT':{}};
+    router.prototype.route = function(req , res){
 
         //handle favicon url by the routing function itself
         if (req.url === '/favicon.ico') {
@@ -14,13 +14,12 @@ var router = {
         }
         try{
             responseObj.response = res;
-            this.routesArray[req.url](req , responseObj);
+            this.routesArray[req.method][req.url](req , responseObj);
         }
         catch(err){
-            console.log("requested url not found");
+            console.log("requested url/method not found");
         }
-    }
-};
+    };
 
 var responseObj = {
     response : Object,
@@ -33,4 +32,6 @@ var responseObj = {
     //etc
 };
 
-module.exports.router = router;
+module.exports = function(){
+    return new router();
+};

@@ -13,6 +13,11 @@ app.get('/home',function(req , res){
     res.send("this is from home");
 });
 
+app.post('/',function(req, res){
+    res.send("got a post request");
+    console.log("got a post request to the / ");
+});
+
 app.listen(4000 , function(){
     console.log('listening on port');
 });
