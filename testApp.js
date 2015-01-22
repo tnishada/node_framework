@@ -15,7 +15,7 @@ app.get('/home',function(req , res){
 
 app.post('/',function(req, res){
     res.send("got a post request");
-    console.log("got a post request to the / ");
+    console.log(req);
 });
 
 app.listen(4000 , function(){

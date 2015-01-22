@@ -17,6 +17,8 @@ var router = function(){};
             this.routesArray[req.method][req.url](req , responseObj);
         }
         catch(err){
+            res.writeHead(404, {'Content-Type': 'text/plain'} );
+            res.end('not found');
             console.log("requested url/method not found");
         }
     };

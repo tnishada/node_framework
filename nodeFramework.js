@@ -3,20 +3,17 @@ var app =  function(){};
 var router = require('./router.js')();
 var http = require('http');
 var http_IP = '127.0.0.1';
+var routeTypes = ['POST','GET','PUT','DELETE'];
 
 var server = http.createServer(function (req, res) {
     router.route(req,res);
 });
 
-app.prototype.get = function(urlComponent , callback){
-    router.routesArray['GET'][urlComponent] = callback;
-};
-
-app.prototype.post = function(urlComponent , callback){
-    router.routesArray['POST'][urlComponent] = callback;
-};
-
-//other methods to be implemented delete , put etc
+routeTypes.forEach(function(httpMethod){
+    app.prototype[httpMethod.toLowerCase()] = function(urlComponent , callback){
+        router.routesArray[httpMethod][urlComponent] = callback;
+    };
+});
 
 app.prototype.listen = function(port , callback){
 
