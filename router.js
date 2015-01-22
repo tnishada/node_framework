@@ -1,6 +1,7 @@
 /**
  * Created by tharindu on 1/21/2015.
  */
+ var fs = require('fs');
 var router = function(){};
     router.prototype.routeTypes = ['GET','POST','PUT','DELETE'];
     router.prototype.routesArray  = {'GET':{},'POST':{},'DELETE':{},'PUT':{}};
@@ -24,7 +25,7 @@ var router = function(){};
         if(!isResourceFound(req,this.routesArray)){
             res.writeHead(404, {'Content-Type': 'image/x-icon'} );
             res.end();
-            console.log('requested url not found |'+ req.method+'|'+req.url+"|");
+            console.log('requested url not found '+"method="+ req.method+' url='+req.url);
             return;
         }
 
@@ -35,7 +36,7 @@ var router = function(){};
         catch(err){
             res.writeHead(404, {'Content-Type': 'text/plain'} );
             res.end('not found');
-            console.log(err.message+"|"+ req.method+'|'+req.url+"|");
+            console.log(err.message+"method="+ req.method+' url='+req.url);
         }
     };
 
@@ -44,8 +45,12 @@ var responseObj = {
     send : function(responseMessage){
         this.response.writeHead(200, { 'Content-Type': 'text/plain' });
         this.response.end(responseMessage);
-    }
-    //sendFile()
+    },
+    sendFile : function(filePath){
+		var content = fs.readFileSync(filePath);
+		this.response.writeHead(200, {'Content-Type': 'text/html'});
+		this.response.end(content);
+	}
     //sendJSON()
     //etc
 };

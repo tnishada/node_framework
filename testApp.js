@@ -20,6 +20,10 @@ app.put('/',function(req, res){
     console.log('put method called');
 });
 
+app.get('/hello',function(req,res){
+	res.sendFile('./test/test.html');
+});
+
 app.listen(4000 , function(){
     console.log('listening on port');
 });
