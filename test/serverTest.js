@@ -7,16 +7,17 @@ var app = require('./../nodeFramework.js')();
 
 before(function(){
     app.get("/",function(req , res){        
-        res.send("");
+        res.send("get_method");
     });
 
     app.post("/home",function(req , res){      
-        res.send("");
+        res.send("post_method");
     });
 
     app.put("/",function(req , res){       
         res.send("");
     });
+
 
     app.listen(3000 , function(){
     });
@@ -53,7 +54,11 @@ describe('http methods test', function () {
 
     it('GET method check', function ( done) {
         http.get('http://localhost:3000', function (res) {
-            assert.equal(res.statusCode , 200);
+            assert.equal( res.statusCode , 200 );
+            res.on('data', function (chunk) {
+                assert.equal(chunk , "get_method");
+            });
+            //console.log(res);
             done();
         });
     });
@@ -61,6 +66,9 @@ describe('http methods test', function () {
     it('POST method check', function ( done) {
         http.request(postOptions, function (res) {
             assert.equal( res.statusCode , 200 );
+            res.on('data', function (chunk) {
+                assert.equal(chunk , "post_method");
+            });
             done();
         }).end();
     });
