@@ -18,6 +18,9 @@ before(function(){
         res.send("");
     });
 
+    app.get("/user/:name",function(req , res){
+        res.send(req.parameters.name);
+    });
 
     app.listen(3000 , function(){
     });
@@ -79,6 +82,17 @@ describe('http methods test', function () {
             assert.equal( res.statusCode , 200 );
             done();
         }).end();
+    });
+
+    it('Parameter passing check', function ( done) {
+        http.get('http://localhost:3000/user/testuser', function (res) {
+            assert.equal( res.statusCode , 200 );
+            res.on('data', function (chunk) {
+                assert.equal(chunk , "testuser");
+            });
+            //console.log(res);
+            done();
+        });
     });
 
 });

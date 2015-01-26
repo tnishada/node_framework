@@ -1,7 +1,7 @@
 /**
  * Created by tharindu on 1/21/2015.
  */
- var fs = require('fs');
+var fs = require('fs');
 var router = function(){};
     router.prototype.routeTypes = ['GET','POST','PUT','DELETE'];
     router.prototype.routesArray  = {'GET':{},'POST':{},'DELETE':{},'PUT':{}};
@@ -22,37 +22,105 @@ var router = function(){};
             return;
         }
 
-        if(!isResourceFound(req,this.routesArray)){
+/*
+        if(!isResourceFound(req,this.routesArray) && !regEx){
             res.writeHead(404, {'Content-Type': 'image/x-icon'} );
             res.end();
             console.log('requested url not found '+"method="+ req.method+' url='+req.url);
             return;
         }
-
+*/
         try{
-            responseObj.response = res;
-            this.routesArray[req.method][req.url](req , responseObj);
+            /*
+            var resObj = new responseObj();
+            resObj.response = res;
+            this.routesArray[req.method][req.url](new reqObj(req , this.routesArray) , resObj);
+            */
+            /////////////////////////////////////////////////
+            var resObj = new responseObj();
+            resObj.response = res;
+
+
+            var givenURLs = this.routesArray[req.method];
+            var requestURL = req.url;
+
+            for(var x in givenURLs){
+
+                if(x === requestURL){
+                    console.log("url matched");
+                    this.routesArray[req.method][req.url](new reqObj(req) , resObj);
+                    return;
+                }
+                else{
+                    var requestUrlComponents = requestURL.split("/");
+                    var savedUrlComponents = x.split("/");
+
+                    if(requestUrlComponents.length != savedUrlComponents.length){
+                        // url not found. continue loop
+                        continue;
+                    }
+                    else{
+                        var urlFound = true;
+                        for(var i = 0 ; i< savedUrlComponents.length ; i++ ){
+                            if(savedUrlComponents[i] != requestUrlComponents[i]){
+                                if(savedUrlComponents[i].charAt(0) == ':'){ // ok
+                                    var ro = new reqObj(req);
+                                    ro.parameters[savedUrlComponents[i].substring(1)] = requestUrlComponents[i];
+
+                                   // this.routesArray[req.method][req.url](ro , resObj);
+                                   // x(ro , resObj);
+
+                                }
+                                else{
+                                    //  url not found break inner loop
+                                    urlFound = false;
+                                }
+                            }
+                        }
+                        if(urlFound){
+                            this.routesArray[req.method][x.toString()](ro , resObj);
+                            return;
+                        }
+
+                    }
+
+                }
+
+            }
+
+            // return with url not found here
+            res.writeHead(404, {'Content-Type': 'image/x-icon'} );
+            res.end();
+            console.log('requested url not found '+"method="+ req.method+' url='+req.url);
+            /////////////////////////////////////////
+
         }
         catch(err){
             res.writeHead(404, {'Content-Type': 'text/plain'} );
             res.end('not found');
-            console.log(err.message+"method="+ req.method+' url='+req.url);
+            console.log(err.message+". method="+ req.method+' url='+req.url);
         }
     };
 
-var responseObj = {
-    response : Object,
-    send : function(responseMessage){
+var responseObj = function(){
+    this.response = Object,
+    this.send = function(responseMessage){
         this.response.writeHead(200, { 'Content-Type': 'text/plain' });
         this.response.end(responseMessage);
     },
-    sendFile : function(filePath){
+    this.sendFile = function(filePath){
 		var content = fs.readFileSync(filePath);
 		this.response.writeHead(200, {'Content-Type': 'text/html'});
 		this.response.end(content);
 	}
     //sendJSON()
     //etc
+};
+
+var reqObj = function(req){
+
+    this.request = req,
+    this.parameters = new Object()
 };
 
 module.exports = function(){
@@ -64,13 +132,6 @@ var isBadRequest = function(req , reqTypes){
         if(req.method == reqTypes[x]){
             return false;
         }
-    }
-    return true;
-};
-
-var isResourceFound = function(req , urlCollection){
-    if( typeof urlCollection[req.method][req.url] === "undefined"){
-        return false;
     }
     return true;
 };
