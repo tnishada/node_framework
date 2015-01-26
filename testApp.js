@@ -35,9 +35,14 @@ app.get('/hello/:name', function(req, res) {
     res.send('hello ' + req.parameters.name + '!');
 });
 
-app.get('/hello/:name/:age', function(req, res) {
-    res.send('hello ' + req.parameters.name + '!' + "You are "+req.parameters.age);
+app.get('/[xyz]+', function(req, res) {
+    res.send(req.request.url);
 });
+
+app.get('/:[abc]+', function(req, res) {
+    res.send(req.request.url);
+});
+
 
 app.listen(3000 , function(){
     console.log('listening on port');

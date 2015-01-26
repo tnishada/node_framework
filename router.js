@@ -1,7 +1,9 @@
 /**
  * Created by tharindu on 1/21/2015.
  */
-var fs = require('fs');
+var response = require('./objects/response.js');
+var request = require('./objects/request.js');
+
 var router = function(){};
     router.prototype.routeTypes = ['GET','POST','PUT','DELETE'];
     router.prototype.routesArray  = {'GET':{},'POST':{},'DELETE':{},'PUT':{}};
@@ -11,7 +13,6 @@ var router = function(){};
         if (req.url === '/favicon.ico') {
             res.writeHead(200, {'Content-Type': 'image/x-icon'} );
             res.end();
-            console.log('favicon requested');
             return;
         }
 
@@ -22,78 +23,34 @@ var router = function(){};
             return;
         }
 
-/*
-        if(!isResourceFound(req,this.routesArray) && !regEx){
-            res.writeHead(404, {'Content-Type': 'image/x-icon'} );
-            res.end();
-            console.log('requested url not found '+"method="+ req.method+' url='+req.url);
-            return;
-        }
-*/
+        var resObj = response();
+        resObj.response = res;
+        var givenURLs = this.routesArray[req.method];
+        var requestURL = req.url;
+
         try{
-            /*
-            var resObj = new responseObj();
-            resObj.response = res;
-            this.routesArray[req.method][req.url](new reqObj(req , this.routesArray) , resObj);
-            */
-            /////////////////////////////////////////////////
-            var resObj = new responseObj();
-            resObj.response = res;
-
-
-            var givenURLs = this.routesArray[req.method];
-            var requestURL = req.url;
-
             for(var x in givenURLs){
-
                 if(x === requestURL){
-                    console.log("url matched");
-                    this.routesArray[req.method][req.url](new reqObj(req) , resObj);
+                    this.routesArray[req.method][req.url](request(req) , resObj);
                     return;
                 }
                 else{
-                    var requestUrlComponents = requestURL.split("/");
-                    var savedUrlComponents = x.split("/");
-
-                    if(requestUrlComponents.length != savedUrlComponents.length){
-                        // url not found. continue loop
-                        continue;
+                    var requestObject = checkParams(x , req);
+                    if(requestObject != null){
+                      this.routesArray[req.method][x.toString()](requestObject , resObj);
+                        return;
                     }
-                    else{
-                        var urlFound = true;
-                        for(var i = 0 ; i< savedUrlComponents.length ; i++ ){
-                            if(savedUrlComponents[i] != requestUrlComponents[i]){
-                                if(savedUrlComponents[i].charAt(0) == ':'){ // ok
-                                    var ro = new reqObj(req);
-                                    ro.parameters[savedUrlComponents[i].substring(1)] = requestUrlComponents[i];
-
-                                   // this.routesArray[req.method][req.url](ro , resObj);
-                                   // x(ro , resObj);
-
-                                }
-                                else{
-                                    //  url not found break inner loop
-                                    urlFound = false;
-                                }
-                            }
-                        }
-                        if(urlFound){
-                            this.routesArray[req.method][x.toString()](ro , resObj);
-                            return;
-                        }
-
+                    requestObject = checkRegEx(x , req);
+                    if(requestObject != null){
+                        this.routesArray[req.method][x.toString()](requestObject , resObj);
                     }
-
                 }
-
             }
-
             // return with url not found here
             res.writeHead(404, {'Content-Type': 'image/x-icon'} );
             res.end();
             console.log('requested url not found '+"method="+ req.method+' url='+req.url);
             /////////////////////////////////////////
-
         }
         catch(err){
             res.writeHead(404, {'Content-Type': 'text/plain'} );
@@ -101,27 +58,6 @@ var router = function(){};
             console.log(err.message+". method="+ req.method+' url='+req.url);
         }
     };
-
-var responseObj = function(){
-    this.response = Object,
-    this.send = function(responseMessage){
-        this.response.writeHead(200, { 'Content-Type': 'text/plain' });
-        this.response.end(responseMessage);
-    },
-    this.sendFile = function(filePath){
-		var content = fs.readFileSync(filePath);
-		this.response.writeHead(200, {'Content-Type': 'text/html'});
-		this.response.end(content);
-	}
-    //sendJSON()
-    //etc
-};
-
-var reqObj = function(req){
-
-    this.request = req,
-    this.parameters = new Object()
-};
 
 module.exports = function(){
     return new router();
@@ -134,4 +70,47 @@ var isBadRequest = function(req , reqTypes){
         }
     }
     return true;
+};
+
+var checkParams = function(x , req){
+    var requestUrlComponents = req.url.split("/");
+    var savedUrlComponents = x.split("/");
+
+    if(requestUrlComponents.length != savedUrlComponents.length){
+        // url not found. continue loop
+
+    }
+    else{
+        var urlFound = true;
+        for(var i = 0 ; i< savedUrlComponents.length ; i++ ){
+            if(savedUrlComponents[i] != requestUrlComponents[i]){
+                if(savedUrlComponents[i].charAt(0) == ':'){ // ok
+                    var ro = request(req);
+                    ro.parameters[savedUrlComponents[i].substring(1)] = requestUrlComponents[i];
+                }
+                else{
+                    //  url not found break inner loop
+                    urlFound = false;
+                }
+            }
+        }
+        if(urlFound){
+            return ro;
+        }
+    }
+    return null;
+};
+
+var checkRegEx = function(x , req){
+    var pattern = new RegExp(x);
+    if(  pattern.exec(req.url) != null){
+
+        if( req.url == pattern.exec(req.url)[0] && pattern.exec(req.url).length ==1 ){
+            var ro = new request(req);
+            return ro;
+        }
+    }
+    else{
+        return null;
+    }
 };
