@@ -22,6 +22,14 @@ before(function(){
         res.send(req.parameters.name);
     });
 
+    app.get("/user/:name/:age",function(req , res){
+        res.send(req.parameters.name+" "+req.parameters.age);
+    });
+
+    app.get("/[xyz]+",function(req , res){
+        res.send(req.request.url);
+    });
+
     app.listen(3000 , function(){
     });
 });
@@ -84,17 +92,53 @@ describe('http methods test', function () {
         }).end();
     });
 
-    it('Parameter passing check', function ( done) {
+
+});
+
+describe("Parameter passing" , function(){
+    it('Single parameter', function ( done) {
         http.get('http://localhost:3000/user/testuser', function (res) {
             assert.equal( res.statusCode , 200 );
             res.on('data', function (chunk) {
                 assert.equal(chunk , "testuser");
             });
-            //console.log(res);
+
             done();
         });
     });
 
+    it('Two parameters', function ( done) {
+        http.get('http://localhost:3000/user/testuser/24', function (res) {
+            assert.equal( res.statusCode , 200 );
+            res.on('data', function (chunk) {
+                assert.equal(chunk , "testuser 24");
+            });
+
+            done();
+        });
+    });
+});
+
+
+describe("Regular Expresstion test", function(){
+    it('Check for valid urls', function ( done) {
+        http.get('http://localhost:3000/xzxyzxy', function (res) {
+            assert.equal( res.statusCode , 200 );
+            //console.log(res);
+            done();
+        });
+
+
+    });
+
+    it('Check for invalid urls', function ( done) {
+
+        http.get('http://localhost:3000/xzxyzxycde45x', function (res) {
+            assert.notEqual( res.statusCode , 200 );
+            //console.log(res);
+            done();
+        });
+    });
 });
 
 

@@ -47,14 +47,14 @@ var router = function(){};
                 }
             }
             // return with url not found here
-            res.writeHead(404, {'Content-Type': 'image/x-icon'} );
-            res.end();
+            res.writeHead(404, {'Content-Type': 'text/plain'} );
+            res.end('Not Found');
             console.log('requested url not found '+"method="+ req.method+' url='+req.url);
             /////////////////////////////////////////
         }
         catch(err){
             res.writeHead(404, {'Content-Type': 'text/plain'} );
-            res.end('not found');
+            res.end('Not found');
             console.log(err.message+". method="+ req.method+' url='+req.url);
         }
     };
@@ -75,17 +75,14 @@ var isBadRequest = function(req , reqTypes){
 var checkParams = function(x , req){
     var requestUrlComponents = req.url.split("/");
     var savedUrlComponents = x.split("/");
+    var ro = request(req);
 
-    if(requestUrlComponents.length != savedUrlComponents.length){
-        // url not found. continue loop
-
-    }
-    else{
+    if(requestUrlComponents.length == savedUrlComponents.length){
         var urlFound = true;
         for(var i = 0 ; i< savedUrlComponents.length ; i++ ){
             if(savedUrlComponents[i] != requestUrlComponents[i]){
                 if(savedUrlComponents[i].charAt(0) == ':'){ // ok
-                    var ro = request(req);
+
                     ro.parameters[savedUrlComponents[i].substring(1)] = requestUrlComponents[i];
                 }
                 else{

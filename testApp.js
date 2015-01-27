@@ -5,43 +5,22 @@
 var nodeFramework = require('./nodeFramework.js');
 var app = nodeFramework();
 
-app.get('/home', function(req , res){
-    console.log('home');
-    res.send("get method - this is home");
-    // console.log(req);
-});
-
-app.get('/', function(req , res){
-    console.log('get method called');
-    res.send("get method - this is root");
-   // console.log(req);
-});
-app.post('/',function(req, res){
-    res.send("post - this is root");
-    console.log('post method called');
-
-});
-
-app.put('/',function(req, res){
-    res.send("put - this is root");
-    console.log('put method called');
-});
-
+/*
 app.get('/hello',function(req,res){
 	res.sendFile('./test/test.html');
 });
+*/
 
-app.get('/hello/:name', function(req, res) {
-    res.send('hello ' + req.parameters.name + '!');
+app.get('/hi/:firstName/:lastName', function(req, res) {
+    res.send('hi ' + req.parameters.firstName +' '+req.parameters.lastName+ ' !');
 });
 
-app.get('/[xyz]+', function(req, res) {
+app.get("/regex/[xyz]+",function(req , res){
     res.send(req.request.url);
 });
 
-app.get('/:[abc]+', function(req, res) {
-    res.send(req.request.url);
-});
+
+
 
 
 app.listen(3000 , function(){
