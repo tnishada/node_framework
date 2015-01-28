@@ -3,7 +3,7 @@
  */
 var fs = require('fs');
 
-var response = function(){
+var Response = function(){
     this.response = Object,
         this.send = function(responseMessage){
             this.response.writeHead(200, { 'Content-Type': 'text/plain' });
@@ -19,5 +19,5 @@ var response = function(){
 };
 
 module.exports = function(){
-    return new response();
+    return new Response();
 };

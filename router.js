@@ -3,11 +3,20 @@
  */
 var response = require('./objects/response.js');
 var request = require('./objects/request.js');
+var middlewareHandler = require('./middleware.js');
+
+
 
 var router = function(){};
+
+    router.prototype.middleware = middlewareHandler();
     router.prototype.routeTypes = ['GET','POST','PUT','DELETE'];
     router.prototype.routesArray  = {'GET':{},'POST':{},'DELETE':{},'PUT':{}};
+    router.prototype.middlewareArray = [];
     router.prototype.route = function(req , res){
+
+        //remove case sensitivity of the url
+        req.url = req.url.toLowerCase();
 
         //handle favicon url by the routing function itself
         if (req.url === '/favicon.ico') {
@@ -16,8 +25,29 @@ var router = function(){};
             return;
         }
 
+        //execute middleware function
+
+        this.middleware.executeMiddlewares(req , res);
+
+        /*
+        for(var index =0 ; index < this.middlewareArray.length ; index++){
+
+
+            if(this.middlewareArray[index].hasOwnProperty(req.url) || this.middlewareArray[index].hasOwnProperty("anyRequest")) {
+                var breakEnabled = true;
+                this.middlewareArray[index][req.url](req, res, function () {
+                    breakEnabled = false;
+                });
+
+                if(breakEnabled){
+                    break;
+                }
+            }
+        }
+        */
+
         if(isBadRequest(req  , this.routeTypes)){
-            res.writeHead(405, {'Content-Type': 'image/x-icon'} );
+            res.writeHead(405, {'Content-Type': 'text/plain'} );
             res.end();
             console.log('Bad Request '+ req.method);
             return;

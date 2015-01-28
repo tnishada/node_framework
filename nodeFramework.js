@@ -26,6 +26,27 @@ app.prototype.close = function(){
 
 };
 
+// when the callback and the corresponding url given
+app.prototype.use = function(url , callback){
+
+    router.middleware.addMiddleware(url , callback);
+
+
+    /*
+
+    if(typeof  callback == "undefined"){ // when  only the callback used to call the function without url
+
+        callback = url;
+        url = "anyRequest"
+    }
+
+    var entry = new Object();
+    entry[url] = callback;
+    router.middlewareArray.push(entry);
+    */
+};
+
+
 module.exports = function(){
     return new app();
 };
