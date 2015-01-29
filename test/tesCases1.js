@@ -126,12 +126,9 @@ describe("Regular Expresstion test", function(){
             //console.log(res);
             done();
         });
-
-
     });
 
     it('Check for invalid urls', function ( done) {
-
         http.get('http://localhost:3000/xzxyzxycde45x', function (res) {
             assert.notEqual( res.statusCode , 200 );
             //console.log(res);

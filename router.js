@@ -30,7 +30,19 @@ var router = function(){};
             return;
         }
 
-        this.middleware.executeMiddlewares(req , res);
+        /*
+             stopExecution = true => middleware does not invoked next()
+             stopExecution = true => middleware has invoked next()
+             therefore router callback should be invoked
+        */
+        /*
+        var stopExecution = this.middleware.executeMiddlewares(req , res);
+
+        if(stopExecution){
+            return ;
+        }
+
+        */
 
         var resObj = response();
         resObj.response = res;
@@ -41,20 +53,20 @@ var router = function(){};
             for(var x in givenURLs){
                 if(x === requestURL){
                     //this.routesArray[req.method][req.url](request(req) , resObj);
-                    invokeCallback(this.routesArray[req.method][req.url] ,  request(req) , resObj);
+                    invokeCallback(this.routesArray[req.method][req.url] , this.middleware ,  request(req) , resObj);
                     return;
                 }
                 else{
                     var requestObject = checkParams(x , req);
                     if(requestObject != null){
                       //this.routesArray[req.method][x.toString()](requestObject , resObj);
-                        invokeCallback(this.routesArray[req.method][x.toString()] ,  requestObject , resObj);
+                        invokeCallback(this.routesArray[req.method][x.toString()] , this.middleware ,  requestObject , resObj);
                         return;
                     }
                     requestObject = checkRegEx(x , req);
                     if(requestObject != null){
                         //this.routesArray[req.method][x.toString()](requestObject , resObj);
-                        invokeCallback(this.routesArray[req.method][x.toString()] ,  requestObject , resObj);
+                        invokeCallback(this.routesArray[req.method][x.toString()] , this.middleware ,  requestObject , resObj);
                     }
                 }
             }
@@ -128,8 +140,13 @@ var errorNotifiers = function( res , code , message ){
     res.end(message);
 };
 
-var invokeCallback = function(callback , reqObj , resObj){
+var invokeCallback = function(callback , middleware , reqObj , resObj){
     //execute middleware function
    // this.middleware.executeMiddlewares(reqObj , resObj);
+    var stopExecution = middleware.executeMiddlewares(reqObj , resObj);
+
+    if(stopExecution){
+        return ;
+    }
     callback(reqObj , resObj);
 };
