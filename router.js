@@ -5,8 +5,6 @@ var response = require('./objects/response.js');
 var request = require('./objects/request.js');
 var middlewareHandler = require('./middleware.js');
 
-
-
 var router = function(){};
 
     router.prototype.middleware = middlewareHandler();
@@ -25,33 +23,14 @@ var router = function(){};
             return;
         }
 
-        //execute middleware function
-
-        this.middleware.executeMiddlewares(req , res);
-
-        /*
-        for(var index =0 ; index < this.middlewareArray.length ; index++){
-
-
-            if(this.middlewareArray[index].hasOwnProperty(req.url) || this.middlewareArray[index].hasOwnProperty("anyRequest")) {
-                var breakEnabled = true;
-                this.middlewareArray[index][req.url](req, res, function () {
-                    breakEnabled = false;
-                });
-
-                if(breakEnabled){
-                    break;
-                }
-            }
-        }
-        */
-
         if(isBadRequest(req  , this.routeTypes)){
             res.writeHead(405, {'Content-Type': 'text/plain'} );
             res.end();
             console.log('Bad Request '+ req.method);
             return;
         }
+
+        this.middleware.executeMiddlewares(req , res);
 
         var resObj = response();
         resObj.response = res;
@@ -61,30 +40,32 @@ var router = function(){};
         try{
             for(var x in givenURLs){
                 if(x === requestURL){
-                    this.routesArray[req.method][req.url](request(req) , resObj);
+                    //this.routesArray[req.method][req.url](request(req) , resObj);
+                    invokeCallback(this.routesArray[req.method][req.url] ,  request(req) , resObj);
                     return;
                 }
                 else{
                     var requestObject = checkParams(x , req);
                     if(requestObject != null){
-                      this.routesArray[req.method][x.toString()](requestObject , resObj);
+                      //this.routesArray[req.method][x.toString()](requestObject , resObj);
+                        invokeCallback(this.routesArray[req.method][x.toString()] ,  requestObject , resObj);
                         return;
                     }
                     requestObject = checkRegEx(x , req);
                     if(requestObject != null){
-                        this.routesArray[req.method][x.toString()](requestObject , resObj);
+                        //this.routesArray[req.method][x.toString()](requestObject , resObj);
+                        invokeCallback(this.routesArray[req.method][x.toString()] ,  requestObject , resObj);
                     }
                 }
             }
             // return with url not found here
-            res.writeHead(404, {'Content-Type': 'text/plain'} );
-            res.end('Not Found');
+
+            errorNotifiers(res , 404 , "Not Found");
             console.log('requested url not found '+"method="+ req.method+' url='+req.url);
             /////////////////////////////////////////
         }
         catch(err){
-            res.writeHead(404, {'Content-Type': 'text/plain'} );
-            res.end('Not found');
+            errorNotifiers(res , 404 , "Not Found");
             console.log(err.message+". method="+ req.method+' url='+req.url);
         }
     };
@@ -140,4 +121,15 @@ var checkRegEx = function(x , req){
     else{
         return null;
     }
+};
+
+var errorNotifiers = function( res , code , message ){
+    res.writeHead(code, {'Content-Type': 'text/plain'} );
+    res.end(message);
+};
+
+var invokeCallback = function(callback , reqObj , resObj){
+    //execute middleware function
+   // this.middleware.executeMiddlewares(reqObj , resObj);
+    callback(reqObj , resObj);
 };

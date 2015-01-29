@@ -92,7 +92,6 @@ describe('http methods test', function () {
         }).end();
     });
 
-
 });
 
 describe("Parameter passing" , function(){
@@ -140,6 +139,4 @@ describe("Regular Expresstion test", function(){
         });
     });
 });
-
-
 
