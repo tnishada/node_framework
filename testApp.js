@@ -18,8 +18,25 @@ app.get("/",function(req , res){
     res.send("Root");
 });
 
+app.get("/regex/[xyz]+",function(req , res){
+    res.send("regular expression ");
+});
+
+
 app.get('/render' , function(req , res){
-    res.render('./views/page.jade', {name : "Steve"} , function(err , html){
+    app.render('./views/page.jade', {name : "Steve"} , function(err , html){
+        res.send(html);
+    });
+});
+
+app.get("/template/jade", function(req , res){
+    app.render('test.jade' , {name : "Alex"} , function(err , html){
+        res.send(html);
+    });
+});
+
+app.get("/template/ejs", function(req , res){
+    app.render('test.ejs' , {code : "123"} , function(err , html){
         res.send(html);
     });
 });

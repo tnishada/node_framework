@@ -67,6 +67,7 @@ var router = function(){};
                     if(requestObject != null){
                         //this.routesArray[req.method][x.toString()](requestObject , resObj);
                         invokeCallback(this.routesArray[req.method][x.toString()] , this.middleware ,  requestObject , resObj);
+                        return;
                     }
                 }
             }
